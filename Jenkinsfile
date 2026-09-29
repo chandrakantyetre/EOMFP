@@ -18,7 +18,7 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube-EOMFP') {
-                    bat 'mvn sonar:sonar -Dsonar.projectKey=eomfp-product-service'
+                    bat 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=eomfp-product-service'
                 }
             }
         }
