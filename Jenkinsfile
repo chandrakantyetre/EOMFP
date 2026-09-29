@@ -15,6 +15,14 @@ pipeline {
             }
         }
 
+        stage('SonarQube Analysis') {
+            steps {
+                withSonarQubeEnv('SonarQube-EOMFP') {
+                    bat 'mvn sonar:sonar -Dsonar.projectKey=eomfp-product-service'
+                }
+            }
+        }
+
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
