@@ -33,7 +33,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                bat '"C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" build -t eomfp-product-service:v1 .'
+                bat '"C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" build -t eomfp-product-service:build-%BUILD_NUMBER% .'
             }
         }
 
