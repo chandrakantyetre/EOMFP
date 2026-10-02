@@ -37,6 +37,24 @@ pipeline {
             }
         }
 
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-eomfp',
+                    usernameVariable: 'DOCKERHUB_USERNAME',
+                    passwordVariable: 'DOCKERHUB_TOKEN'
+                )]) {
+                    bat '''
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag eomfp-product-service:build-%BUILD_NUMBER% %DOCKERHUB_USERNAME%/eomfp:build-%BUILD_NUMBER%
+
+                        echo %DOCKERHUB_TOKEN% | "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u %DOCKERHUB_USERNAME% --password-stdin
+
+                        "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKERHUB_USERNAME%/eomfp:build-%BUILD_NUMBER%
+                    '''
+                }
+            }
+        }
+
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
