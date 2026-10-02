@@ -31,11 +31,11 @@ pipeline {
             }
         }
 
-        stage('Docker Check') {
-            steps {
-                bat 'docker version'
-            }
-        }
+       stage('Docker Check') {
+    steps {
+        bat '"C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" version'
+    }
+}
 
         stage('Archive Artifact') {
             steps {
