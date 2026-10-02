@@ -38,23 +38,38 @@ pipeline {
         }
 
         stage('Docker Push') {
-            steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-eomfp',
-                    usernameVariable: 'DOCKERHUB_USERNAME',
-                    passwordVariable: 'DOCKERHUB_TOKEN'
-                )]) {
-                    bat '''
-                        "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" tag eomfp-product-service:build-%BUILD_NUMBER% %DOCKERHUB_USERNAME%/eomfp:build-%BUILD_NUMBER%
+    steps {
+        withCredentials([usernamePassword(
+            credentialsId: 'dockerhub-eomfp',
+            usernameVariable: 'DOCKERHUB_USERNAME',
+            passwordVariable: 'DOCKERHUB_TOKEN'
+        )]) {
 
-                        echo %DOCKERHUB_TOKEN% | "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" login -u %DOCKERHUB_USERNAME% --password-stdin
+            powershell '''
+                $docker = "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe"
 
-                        "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" push %DOCKERHUB_USERNAME%/eomfp:build-%BUILD_NUMBER%
-                    '''
+                & $docker tag `
+                    "eomfp-product-service:build-$env:BUILD_NUMBER" `
+                    "$env:DOCKERHUB_USERNAME/eomfp:build-$env:BUILD_NUMBER"
+
+                $env:DOCKERHUB_TOKEN | & $docker login `
+                    -u $env:DOCKERHUB_USERNAME `
+                    --password-stdin
+
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
                 }
-            }
-        }
 
+                & $docker push `
+                    "$env:DOCKERHUB_USERNAME/eomfp:build-$env:BUILD_NUMBER"
+
+                if ($LASTEXITCODE -ne 0) {
+                    exit $LASTEXITCODE
+                }
+            '''
+        }
+    }
+}
         stage('Archive Artifact') {
             steps {
                 archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
