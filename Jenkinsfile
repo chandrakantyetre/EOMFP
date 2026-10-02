@@ -31,11 +31,11 @@ pipeline {
             }
         }
 
-       stage('Docker Check') {
-    steps {
-        bat '"C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" version'
-    }
-}
+        stage('Docker Build') {
+            steps {
+                bat '"C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe" build -t eomfp-product-service:v1 .'
+            }
+        }
 
         stage('Archive Artifact') {
             steps {
