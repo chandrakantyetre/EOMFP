@@ -37,7 +37,7 @@ pipeline {
             }
         }
 
-        stage('Docker Push') {
+        stage('Docker Credential Test') {
     steps {
         withCredentials([string(
             credentialsId: 'dockerhub-eomfp-token',
@@ -45,26 +45,9 @@ pipeline {
         )]) {
 
             powershell '''
-                $docker = "C:\\Users\\HP\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin\\docker.exe"
-
-                & $docker tag `
-                    "eomfp-product-service:build-$env:BUILD_NUMBER" `
-                    "chandrakantyetre/eomfp:build-$env:BUILD_NUMBER"
-
-                $env:DOCKERHUB_TOKEN | & $docker login `
-                    -u "chandrakantyetre" `
-                    --password-stdin
-
-                if ($LASTEXITCODE -ne 0) {
-                    exit $LASTEXITCODE
-                }
-
-                & $docker push `
-                    "chandrakantyetre/eomfp:build-$env:BUILD_NUMBER"
-
-                if ($LASTEXITCODE -ne 0) {
-                    exit $LASTEXITCODE
-                }
+                $bytes = [System.Text.Encoding]::UTF8.GetBytes($env:DOCKERHUB_TOKEN)
+                $hash = [System.Security.Cryptography.SHA256]::Create().ComputeHash($bytes)
+                ($hash | ForEach-Object { $_.ToString("x2") }) -join ""
             '''
         }
     }
