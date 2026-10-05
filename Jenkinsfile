@@ -39,10 +39,9 @@ pipeline {
 
         stage('Docker Push') {
     steps {
-        withCredentials([usernamePassword(
-            credentialsId: 'dockerhub-eomfp',
-            usernameVariable: 'DOCKERHUB_USERNAME',
-            passwordVariable: 'DOCKERHUB_TOKEN'
+        withCredentials([string(
+            credentialsId: 'dockerhub-eomfp-token',
+            variable: 'DOCKERHUB_TOKEN'
         )]) {
 
             powershell '''
@@ -50,10 +49,10 @@ pipeline {
 
                 & $docker tag `
                     "eomfp-product-service:build-$env:BUILD_NUMBER" `
-                    "$env:DOCKERHUB_USERNAME/eomfp:build-$env:BUILD_NUMBER"
+                    "chandrakantyetre/eomfp:build-$env:BUILD_NUMBER"
 
                 $env:DOCKERHUB_TOKEN | & $docker login `
-                    -u $env:DOCKERHUB_USERNAME `
+                    -u "chandrakantyetre" `
                     --password-stdin
 
                 if ($LASTEXITCODE -ne 0) {
@@ -61,7 +60,7 @@ pipeline {
                 }
 
                 & $docker push `
-                    "$env:DOCKERHUB_USERNAME/eomfp:build-$env:BUILD_NUMBER"
+                    "chandrakantyetre/eomfp:build-$env:BUILD_NUMBER"
 
                 if ($LASTEXITCODE -ne 0) {
                     exit $LASTEXITCODE
